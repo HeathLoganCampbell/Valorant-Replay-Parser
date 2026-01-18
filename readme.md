@@ -579,3 +579,26 @@ OFFSET   | BYTES           | VALUE       | MEANING
 0x30+    | GUID field starts here (UTF-16LE, 512 bytes)
 ```
 
+
+```
+OFFSET   | BYTES           | VALUE        | MEANING
+---------|-----------------|--------------|---------------------------------------------
+0x00-0x03| DD EF F4 43     | 0x43F4EFDD   | Unreal replay magic (NETWORK_DEMO_MAGIC) ✓
+0x04-0x07| 07 00 00 00     | 7            | Demo / network version (major) ✓
+0x08-0x0B| 01 00 00 00     | 1            | Replay format version (minor) ✓
+0x0C-0x0F| 3E F0 A4 95     | 0x95A4F03E   | Replay checksum / header CRC ✓
+---------|-----------------|--------------|---------------------------------------------
+0x10-0x1F| (16 bytes)     | —            | Engine / network compatibility GUID (FGuid) ✓
+---------|-----------------|--------------|---------------------------------------------
+0x10-0x13| E4 49 0B 7E     | 0x7E0B49E4   | FGuid.A (Engine / Net GUID)
+0x14-0x17| 56 D3 43 BA     | 0xBA43D356   | FGuid.B
+0x18-0x1B| D9 87 FF 94     | 0x94FF87D9   | FGuid.C
+0x1C-0x1F| 07 00 00 00     | 0x00000007   | FGuid.D
+---------|-----------------|--------------|---------------------------------------------
+0x20-0x23| C9 13 09 00     | 594,889      | Engine changelist / build number ✓
+0x24-0x27| E6 EF A7 1C     | 0x1CA7EFE6   | EngineNetVersion / GameNetVersion ✓
+0x28-0x2B| CD 6F 3E 00     | 4,091,853    | Replay frame / packet count (upper bound) ✓
+0x2C-0x2F| FF FE FF FF     | 0xFFFFFEFF   | Header terminator / sentinel ✓
+---------|-----------------|--------------|---------------------------------------------
+0x30+    | —               | —            | Start of replay metadata / record stream ✓
+```
