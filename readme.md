@@ -27,3 +27,12 @@ EventEntry {
   PayloadOffset
 }
 ```
+
+This is why valorant have to fast forward to a spot cause each chunk is 5 - 15 seconds
+```
+CheckpointEntry {
+  Time
+  ChunkIndex
+  OffsetInChunk
+}
+```
