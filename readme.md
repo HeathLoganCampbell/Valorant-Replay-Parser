@@ -567,12 +567,12 @@ OFFSET   | BYTES           | VALUE       | MEANING
 ---------|-----------------|-------------|---------------------------
          RESERVED SECTION (32 bytes) - Unknown Purpose
 ---------|-----------------|-------------|---------------------------
-0x10-0x13| E4 49 0B 7E     | 0x7E0B49E4  | Unknown metadata
-0x14-0x17| 56 D3 43 BA     | 0xBA43D356  | Unknown metadata
-0x18-0x1B| D9 87 FF 94     | 0x94FF87D9  | Unknown metadata
-0x1C-0x1F| 07 00 00 00     | 7           | Version? (matches major)
+0x10-0x13| E4 49 0B 7E     | 0x7E0B49E4  | Network Guid?
+0x14-0x17| 56 D3 43 BA     | 0xBA43D356  | 
+0x18-0x1B| D9 87 FF 94     | 0x94FF87D9  | 
+0x1C-0x1F| 07 00 00 00     | 7           | Version or guid? 
 0x20-0x23| C9 13 09 00     | 594,889     | Unknown counter/timestamp?
-0x24-0x27| E6 EF A7 1C     | 0x1CA7EFE6  | Unknown metadata
+0x24-0x27| E6 EF A7 1C     | 0x1CA7EFE6  | EngineNetVersion?
 0x28-0x2B| CD 6F 3E 00     | 4,091,853   | Unknown counter?
 0x2C-0x2F| FF FE FF FF     | 0xFFFFFEFF  | Padding/separator
 ---------|-----------------|-------------|---------------------------
