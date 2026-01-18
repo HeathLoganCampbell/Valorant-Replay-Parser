@@ -51,3 +51,26 @@ ReplayRecord {
   PayloadBits
 }
 ```
+```
+ReplicationRecord
+└── NetPackets[]
+    └── NetBunches[]
+```
+```
+ReplicatedObject
+├── NetHandle
+├── ReplicationFragments[]
+│   ├── FragmentID
+│   ├── FieldHandles[]
+│   └── StateDeltaBits
+```
+
+```
+Replay (file)
+ └─ Chunk[]
+    └─ Record[]
+       └─ Packet[]
+          └─ Bunch[]
+             └─ ReplicationFragment[]
+                └─ FieldDeltaBits
+```
