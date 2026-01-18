@@ -74,3 +74,27 @@ Replay (file)
              └─ ReplicationFragment[]
                 └─ FieldDeltaBits
 ```
+
+checkpoints comtain the full game state 
+```
+[Checkpoint Header]
+├── Checkpoint ID/Index
+├── Time offset (milliseconds into replay)
+├── Size of checkpoint data
+└── Checkpoint state data offset
+
+[Checkpoint Data]
+├── Actor GUID mappings
+├── Deleted actors list
+├── Active actors and their state:
+│   ├── Actor GUID
+│   ├── Actor archetype/class
+│   ├── Replicated properties (serialized):
+│   │   ├── Location (FVector)
+│   │   ├── Rotation (FRotator)
+│   │   ├── Velocity
+│   │   ├── Health
+│   │   └── [Game-specific properties]
+│   └── Components and their states
+└── Game state snapshot
+```
