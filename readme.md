@@ -36,3 +36,18 @@ CheckpointEntry {
   OffsetInChunk
 }
 ```
+
+```
+Chunk
+├── [Compressed Block]
+│   └── ReplayRecords[]
+```
+
+```
+ReplayRecord {
+  TimeDelta
+  RecordType
+  PayloadSize
+  PayloadBits
+}
+```
