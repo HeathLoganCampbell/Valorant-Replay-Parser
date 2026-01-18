@@ -18,3 +18,12 @@ ChunkIndexEntry {
   UncompressedSize
 }
 ```
+
+```
+EventEntry {
+  Time
+  Group
+  Metadata
+  PayloadOffset
+}
+```
