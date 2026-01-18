@@ -278,3 +278,281 @@ public class UnrealReplayData
     }
 }
 ```
+
+
+## Riot's changes maybe?
+
+This document describes a **streaming-first, memory-efficient architecture** for parsing VALORANT replay (`.vrf`) files, modeled after Riot’s likely internal Unreal Engine replay pipeline.
+
+The design prioritizes fast startup, lazy decoding, scalability, and accurate timeline seeking.
+
+---
+
+## Design Goals
+
+- **Fast startup**: Minimal header parsing (<1 ms)
+- **Low memory usage**: Stream chunks instead of loading entire files
+- **Random access**: Optional chunk and checkpoint indexing
+- **Scalable**: Handles large replays (50–100 MB+)
+- **Seekable**: Timeline scrubbing via checkpoints
+- **Incremental enrichment**: Indexes built during playback
+
+---
+
+## High-Level Architecture
+
+```text
+Replay File
+ ├─ Header (small, parsed eagerly)
+ ├─ Chunk Stream (lazy)
+ │   ├─ Oodle-compressed replay data
+ │   ├─ Event blocks
+ │   ├─ Checkpoints (full state snapshots)
+ │   └─ Metadata / padding
+ └─ Optional indexes
+     ├─ Chunk index
+     ├─ Event index
+     └─ Checkpoint index
+```
+
+---
+
+## Core Parser Entry Point
+
+```csharp
+public class ValorantReplayParser
+{
+    public ValorantReplay Parse(string filePath)
+    {
+        using var stream = File.OpenRead(filePath);
+        using var reader = new BinaryReader(stream);
+
+        var replay = new ValorantReplay();
+
+        replay.Header = ReadValorantHeader(reader);
+        replay.ChunkStream = new LazyChunkStream(stream, replay.Header);
+
+        if (needsRandomAccess)
+            replay.ChunkStream.BuildChunkIndex();
+
+        if (needsEvents)
+            replay.Events = new EventIndexBuilder().BuildEventIndex(stream);
+
+        if (needsCheckpoints)
+            replay.Checkpoints = new CheckpointSeeker(replay.ChunkStream)
+                .BuildCheckpointIndex();
+
+        return replay;
+    }
+}
+```
+
+---
+
+## 1. Minimal Header Parsing (Fast Path)
+
+Only essential metadata is parsed up-front to enable streaming.
+
+Parsed fields:
+
+- Magic (`0x43F4EFDD`)
+- File version
+- Custom version table
+- Match duration (ms)
+- Network session GUID
+- Network version
+- Changelist
+- Friendly name (FString)
+- Chunk stream offset
+
+No replay payload data is loaded during this phase.
+
+---
+
+## 2. Lazy Chunk Streaming
+
+Chunks are streamed sequentially on demand.
+
+```csharp
+foreach (var chunk in replay.ChunkStream.StreamChunks())
+{
+    ProcessChunk(chunk);
+}
+```
+
+### Rationale
+
+- Replay files are large
+- Checkpoints decompress to tens of MB
+- Streaming avoids unnecessary allocations and GC pressure
+
+---
+
+## 3. Chunk Indexing (Optional)
+
+Chunk indexing is only built if random access is required.
+
+The index maps:
+
+```text
+ChunkOffset → ChunkMetadata
+```
+
+Indexing heuristics:
+
+- Oodle Kraken marker (`0x8C`)
+- Compression boundaries
+- Chunk size patterns
+
+Use cases:
+
+- Timeline scrubbing
+- Checkpoint seeking
+- Random chunk access
+
+---
+
+## 4. Chunk Type Detection
+
+Chunk type is inferred using **byte-pattern heuristics**.
+
+| Pattern | Meaning |
+|------|--------|
+| `0x8C` | Oodle Kraken compressed |
+| `00 00 80 BF` | Alternate Oodle variant |
+| Event string markers | Replay events |
+| Large compressed blocks | Likely checkpoints |
+| Small blocks | Metadata or padding |
+
+This mirrors Unreal Engine replay streaming behavior.
+
+---
+
+## 5. Oodle Decompression (Critical)
+
+All meaningful replay data is Oodle-compressed.
+
+```csharp
+byte[] decompressed = Oodle.OodleLZ_Decompress(...);
+```
+
+Notes:
+
+- Riot uses **Oodle Kraken**
+- Decompressed size is not always stored explicitly
+- Output buffer size is estimated or derived heuristically
+- Requires native Oodle DLL integration
+
+---
+
+## 6. Network Packet Parsing
+
+Decompressed replay data is parsed as an Unreal network stream.
+
+Each packet contains:
+
+- Timestamp
+- NetGUID exports
+- Actor replication bunches
+- Property updates
+- RPC calls
+
+This phase reconstructs **actual game state**.
+
+---
+
+## 7. Event Extraction
+
+Events are discovered via string scanning.
+
+Example pattern:
+
+```text
+EReplayEventGroup::EventName
+```
+
+Extracted fields:
+
+- Event name
+- Offset
+- Timestamp (float near marker)
+
+Used for:
+
+- Kill events
+- Round transitions
+- Objective updates
+- UI-level annotations
+
+---
+
+## 8. Checkpoints & Timeline Seeking
+
+Checkpoints represent **full game state snapshots**.
+
+Heuristics for detection:
+
+- Large compressed size (>50 KB)
+- Regular spacing (~30 seconds)
+- Contains full actor state
+
+Seek algorithm:
+
+1. Find nearest checkpoint ≤ target time
+2. Load checkpoint state
+3. Replay incremental packets until target timestamp
+
+This matches Unreal Engine replay seek semantics.
+
+---
+
+## 9. Playback Flow
+
+```csharp
+foreach (var chunk in replay.ChunkStream.StreamChunks())
+{
+    var decompressed = OodleDecompress(chunk.Data);
+    var packets = ParseNetworkStream(decompressed);
+
+    foreach (var packet in packets)
+    {
+        ApplyPacketToGameState(gameState, packet);
+        RenderFrame(gameState, packet.TimeSeconds);
+    }
+}
+```
+
+---
+
+## Riot-Style Optimizations
+
+### Lazy Everything
+- No eager loading
+- No eager decompression
+
+### Chunk Caching
+- Cache only frequently accessed chunks (checkpoints)
+- Evict via FIFO or LRU
+
+### Incremental Indexing
+- Build event and checkpoint indexes during playback
+- Zero upfront indexing cost
+
+### Memory Caps
+- Hard limit on decompressed cache size
+- Prevents runaway memory usage
+
+---
+
+## Summary
+
+This architecture reflects how Riot likely processes VALORANT replays internally:
+
+- Streaming-first design
+- Oodle-centric compression
+- Network replication decoding
+- Checkpoint-driven seeking
+- Incremental indexing
+
+It is suitable for replay analysis, visualization tools, and deep reverse-engineering workflows.
+
