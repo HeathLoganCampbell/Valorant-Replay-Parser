@@ -1,5 +1,5 @@
 # Valorant Replay Parser
-
+```
 ReplayFile
 ├── Header
 ├── Info / Metadata
@@ -7,3 +7,14 @@ ReplayFile
 ├── EventIndex
 ├── CheckpointIndex
 └── Chunks[]
+```
+
+```
+ChunkIndexEntry {
+  StartTime
+  EndTime
+  FileOffset
+  CompressedSize
+  UncompressedSize
+}
+```
