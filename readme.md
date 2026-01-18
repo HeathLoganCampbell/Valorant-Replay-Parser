@@ -602,3 +602,71 @@ OFFSET   | BYTES           | VALUE        | MEANING
 ---------|-----------------|--------------|---------------------------------------------
 0x30+    | —               | —            | Start of replay metadata / record stream ✓
 ```
+
+```
+OFFSET    | BYTES / ASCII                         | VALUE / TYPE          | MEANING
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E0A0   | 44 00 00                              | 0x44                  | Record / field size or NetField header
+          | 80 BF 00 00                           | 0x0000BF80            | NetGUID / object index (compressed)
+          | 80 BF 0C 00                           | 0x000CBF80            | NetGUID / outer reference
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E0B0   | 00 00 4C 69 6E 75 78 53 65 72 76 65 72| "LinuxServer"         | Platform / build target string ✓
+          | 00                                    | NUL                   | String terminator
+          | 04 02                                | varint / flags        | Serialized field flags
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E0C0   | 01 00 00 00                           | 1                     | Bool / enum value
+          | 0F 1B 01 00                           | varint                | NetField export index
+          | 00 00 00 00                           | 0                     | Padding / null reference
+          | 31 00 00 00                           | 49                    | Property index / count
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E0D0   | FF 1A 01 00                           | varint                | Replication command
+          | BB 88 02 00                           | 0x000288BB            | NetGUID (actor/channel)
+          | BB 88 02 00                           | 0x000288BB            | Repeated NetGUID (owner)
+          | F7 1A 01 00                           | varint                | End-of-command marker
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E0E0   | 8C 0A 01 1A                           | Packed bits           | Property header (UE bitstream)
+          | F1 88 92 31                           | 32-bit                | Replicated value (opaque)
+          | 00 00 00 00                           | 0                     | Null / unset field
+          | 0A 1B 00 3C                           | varint                | Field mask / change mask
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E0F0   | 00 37 1C D7                           | Packed bits           | Property replication header
+          | 02 02 02 41                           | Flags / NetField ops  | Property delta encoding
+          | 00 00                                | Padding
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E0F8   | 2F 47 61 6D 65 2F 43 68 61 72 63 74   | "/Game/Charct"        | UObject path (start) ✓
+0x3E104  | 65 72 73 2F 5F 43 6F 72 2F 42 61 73   | "ers/_Cor/Bas"        | UObject path (cont.)
+0x3E110  | 65 4A 61 6E 75 73 43 6F 6E 74 72 6F   | "eJanusContro"        | Class name
+0x3E11C  | 6C 6C 65 72 2E 5F 43 00                | "ller._C"             | Blueprint-generated class ✓
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E124  | 2A 01                                | varint                | NetField export index
+          | 06 85 51 F9 F4 01 B1 02              | Packed bits           | Replicated property values
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E130  | 02 00                                | 2                     | Array length / element count
+          | 01 18                                | Flags
+          | 27 8B FA 65                          | 32-bit                | Replicated scalar
+          | 01 AF 1C 46                          | 32-bit                | Replicated scalar
+          | 36 46 EC 00                          | 32-bit                | Replicated scalar
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E140  | 0C 00 00 00                          | 12                    | FString length
+          | 50 6C 61 79 65 72 53 74 61 74 65 00  | "PlayerState"         | UObject / class name ✓
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E150  | 02 01                                | Flags
+          | 24 FE 48 EB 43 0E                    | Packed bits           | Property header
+          | 00 00 00                            | Padding
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E158  | 53 70 61 77 6E 4C 6F 63 74 69 6F 6E  | "SpawnLocation"       | Property name ✓
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E164  | 06 02                                | Flags / type
+          | 28 53 63 72 69 70 74                | "(Script"             | Property path
+0x3E16C  | 2F 53 68 6F 6F 2E 56 69 65 77 54 61  | "/Shoo.ViewTa"        | Component path
+0x3E178  | 72 67 65 74 43 6F 6D 70 6F 6E 65 6E  | "rgetComponen"        |
+0x3E184  | 74 00                                | "t\0"                 | Component name ✓
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E186  | 0A 01                                | Flags
+          | 02 B5 FC DF B0 00                   | Packed bits           | Replicated FVector / rotator
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E190  | 0A 00                                | FString length
+          | 00 00 62 49 73 41 63 74 69 76 65  | "bIsActive"           | Boolean property ✓
+----------|---------------------------------------|-----------------------|---------------------------------------------
+0x3E19C  | 08 02                                | Value + flags         | Bool = true
+```
