@@ -704,3 +704,12 @@ OFFSET    | BYTES / ASCII                  | VALUE / TYPE        | MEANING
 ----------|--------------------------------|---------------------|-----------------------------------------
 0x3FC60   | 44 79 6E 61 73 74 79            | "Dynasty"           | Cosmetic line ✓
 ```
+```
+├─ UE Chunk #1 (Header, 119 KB)
+│  ├─ 12-byte header: [Type=0][Time=0.0][Size=119,022]
+│  └─ Payload (119 KB):
+│     ├─ BC chunk 1 (234 bytes)   ← 0xBC signature
+│     ├─ BC chunk 2 (156 bytes)   ← 0xBC signature
+│     ├─ BC chunk 3 (892 bytes)   ← 0xBC signature
+│     └─ ... 271 more BC chunks
+```
