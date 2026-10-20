@@ -28,7 +28,7 @@ EventEntry {
 }
 ```
 
-This is why valorant have to fast forward to a spot cause each chunk is 5 - 15 seconds
+This is why VALORANT has to fast forward to a spot, because each chunk is 5 - 15 seconds
 ```
 CheckpointEntry {
   Time
@@ -75,7 +75,7 @@ Replay (file)
                 └─ FieldDeltaBits
 ```
 
-checkpoints comtain the full game state 
+checkpoints contain the full game state 
 ```
 [Checkpoint Header]
 ├── Checkpoint ID/Index
